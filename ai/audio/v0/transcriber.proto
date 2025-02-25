@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai.audio.v0;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/audio/v0;audiopb";
+
+// Service for transcribing audio to text.
+// buf:lint:ignore SERVICE_SUFFIX
+service Transcriber {
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+  rpc Transcribe(TranscribeRequest) returns (Transcription) {};
+}
+
+// Request to `Transcribe`.
+message TranscribeRequest {
+  // Reserved for model
+  reserved 3;
+
+  // REQUIRED. Data sources of audio file to transcribe.
+  oneof data {
+    option (buf.validate.oneof).required = true;
+
+    Blob inline_data = 1;
+    FileData file_data = 2;
+  }
+
+  // OPTIONAL. Instructions to guide the model on the style of produced output text.
+  string prompt = 4;
+}
+
+// Raw binary data.
+message Blob {
+  // REQUIRED. The IANA standard MIME type of the source data.
+  string mime_type = 1;
+
+  // REQUIRED. Binary data.
+  bytes data = 2;
+}
+
+// Reference to a remote file.
+message FileData {
+  // REQUIRED. The IANA standard MIME type of the source data.
+  string mime_type = 1;
+
+  // REQUIRED. URI of the remote file.
+  // The following URI formats are supported:
+  // - An unauthenticated HTTP URI.
+  // - Google Cloud Storage URI in the form `gs://<bucket>/<object>`. When providing a URI to Google Cloud Storage,
+  // the bucket must be public or access must be granted to the Service Account for the audio-server.
+  string uri = 2;
+}
+
+// Transcribed audio.
+message Transcription {
+  // The transcribed text.
+  string text = 1;
+}

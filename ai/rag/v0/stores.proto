@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai.rag.v0;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/rag/v0;ragpb";
+
+// Stores is a service for managing index stores and files within those stores.
+// buf:lint:ignore SERVICE_SUFFIX
+service Stores {
+  rpc ListIndexFiles(ListIndexFilesRequest) returns (ListIndexFilesResponse) {};
+}
+
+// A file in an index store.
+message IndexFile {
+  // The indexing state of a IndexFile.
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    INDEXING = 1;
+    INDEXED = 2;
+    FAILED = 3;
+  }
+
+  // Information about a directory.
+  message DirectoryInfo {
+    // The count of states of all files within the directory and its subdirectories.
+    map<string, uint32> states = 1;
+  }
+
+  // Information about a file.
+  message FileInfo {
+    // The MD5 hash of the file.
+    string md5 = 1;
+
+    // The indexing state of the file.
+    State state = 2;
+
+    // The reason for the state. This field is only populated when the state is FAILED.
+    string state_reason = 3;
+  }
+
+  // The ID of the store the file belongs to.
+  string store_id = 1;
+
+  // The name of the file.
+  string name = 2;
+
+  // The time the file was last uploaded.
+  google.protobuf.Timestamp upload_time = 3;
+
+  // Information about the file.
+  oneof info {
+    // Information about a directory.
+    // Directory information is only populated when the `recursive` flag on the request is set to `false`.
+    DirectoryInfo directory_info = 4;
+
+    // Information about a file.
+    FileInfo file_info = 5;
+  }
+}
+
+// Request to the `ListIndexFiles` method.
+message ListIndexFilesRequest {
+  // REQUIRED. The ID of the store to list files from.
+  string store_id = 1;
+
+  // OPTIONAL. List files in the specified directory prefix. When not specified, the root directory will be used.
+  string directory = 2;
+
+  // OPTIONAL. List files recursively.
+  // When set to true, directory entries will not be included in the response.
+  bool recursive = 3;
+
+  // OPTIONAL. The maximum number of results to return.
+  // When not specified a default of 100 will be used. When a value greater than 1000 is specified, the value will be
+  // coerced down to 1000.
+  int32 page_size = 5;
+
+  // OPTIONAL. The page token to use for the next page of results.
+  // When not specified, the first page of results will be returned.
+  // All filter parameters must remain the same when using a page token.
+  string page_token = 6;
+}
+
+// Response to the `ListIndexFiles` method.
+message ListIndexFilesResponse {
+  // The list of files
+  repeated IndexFile files = 1;
+
+  // The token used to retrieve the next page of files.
+  // If there are no more pages, this field will be empty.
+  string next_page_token = 2;
+}

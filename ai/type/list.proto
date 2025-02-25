@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package ai.type;
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/type";
+
+// StringList is a list of strings.
+message StringList {
+  repeated string values = 1;
+}

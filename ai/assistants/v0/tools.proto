@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package ai.assistants.v0;
+
+import "buf/validate/validate.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/assistants/v0;assistantspb";
+
+// A tool/function definition for a model to use.
+message Tool {
+
+  // A parameter definition for a tool
+  message Parameter {
+    enum Type {
+      TYPE_UNSPECIFIED = 0;
+      STRING = 1;
+      NUMBER = 2;
+      BOOLEAN = 3;
+      ENUM = 4;
+    }
+
+    // Name of the parameter
+    string name = 1 [(buf.validate.field).cel = {
+        id: "non-empty",
+        message: "must be non-empty",
+        expression: "this != \"\""
+    }];
+
+    // Human-readable description of the parameter
+    string description = 2 [(buf.validate.field).cel = {
+      id: "non-empty",
+      message: "must be non-empty",
+      expression: "this != \"\""
+    }];
+
+    // Type of the parameter
+    // TODO: What about complex types?
+    Type type = 3 [(buf.validate.field).cel = {
+      id: "non-zero",
+      message: "must be non-zero",
+      expression: "this != 0",
+    }];
+
+    // Possible values for the parameter when the type is ENUM
+    repeated string values = 4;
+
+    // Whether the parameter is required
+    bool required = 5;
+
+    option (buf.validate.message).cel = {
+      id: "enum_values",
+      message: "values must be non-empty when type is ENUM",
+      expression: "this.type != 4 || size(this.values) > 0"
+    };
+  }
+
+  // Name of the function
+  string name = 1;
+
+  // Human-readable description of the function
+  string description = 2;
+
+  // Parameters for the function
+  repeated Parameter parameters = 3;
+}
+
+// A request by the Assistant Run for the user to invoke a tool and provide a response
+message ToolCall {
+
+  // The state of a ToolCall
+  enum State {
+    STATE_UNSPECIFIED = 0;
+    RESPONSE_REQUIRED = 1;
+    COMPLETED = 2;
+  }
+
+  // Unique id of the tool call
+  string id = 1;
+
+  // Name of the tool being called
+  string tool_name = 2;
+
+  // Arguments to the tool
+  string arguments = 3;
+
+  // The state of the tool call
+  State state = 4;
+
+  // Indicates that the tool call failed
+  bool error = 5;
+
+  // The response value to the tool call
+  // This is only set when the user has responded to the tool call
+  string response = 6;
+}

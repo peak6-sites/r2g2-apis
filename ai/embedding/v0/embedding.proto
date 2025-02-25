@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai.embedding.v0;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/embedding/v0;embeddingpb";
+
+// Embedding service provides methods for generating text embeddings,
+// calculating similarity between texts, and listing available models.
+// buf:lint:ignore SERVICE_SUFFIX
+service Embeddings {
+  // Generates an embedding vector for the provided text using the specified model.
+  rpc CreateEmbedding(CreateEmbeddingRequest) returns (CreateEmbeddingResponse) {};
+
+  // Calculates the similarity score between two texts using the specified model.
+  rpc ComputeSimilarity(ComputeSimilarityRequest) returns (ComputeSimilarityResponse);
+
+  // Retrieves a list of available embedding models.
+  rpc ListModels(ListModelsRequest) returns (ListModelsResponse);
+}
+
+// Request message for generating an embedding.
+message CreateEmbeddingRequest {
+  // The name of the embedding model to use.
+  string model = 1;
+
+  // The text to generate an embedding for.
+  repeated string text = 3;
+}
+
+// Response message containing the embedding vectors.
+message CreateEmbeddingResponse {
+  // The embedding vector for the provided text.
+  repeated Embedding embeddings = 1;
+}
+
+// Represents an embedding vector.
+message Embedding {
+  // The embedding vector as a sequence of floats.
+  repeated float embedding = 1;
+}
+
+
+// Request message for calculating similarity between two texts.
+message ComputeSimilarityRequest {
+  // The name of the embedding model to use.
+  string model = 1;
+
+  // The first text for similarity comparison.
+  string text_1 = 2;
+
+  // The second text for similarity comparison.
+  string text_2 = 3;
+}
+
+// Response message containing the similarity score.
+message ComputeSimilarityResponse {
+  // The similarity score between the two texts.
+  float similarity = 1;
+}
+
+// Request message for listing available models.
+message ListModelsRequest {}
+
+// Response message containing a list of models.
+message ListModelsResponse {
+  // A list of available models.
+  repeated Model models = 1;
+}
+
+// Represents an embedding model.
+message Model {
+  // The name of the model.
+  string name = 1;
+}

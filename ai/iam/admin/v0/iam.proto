@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai.iam.admin.v0;
+
+import "buf/validate/validate.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/iam/admin/v0;adminpb";
+
+// Creates and manages IAM resources, such as Service Accounts
+// buf:lint:ignore SERVICE_SUFFIX
+// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+service IAM {
+  // Creates a new Service Account
+  rpc CreateServiceAccount(CreateServiceAccountRequest) returns (ServiceAccount);
+
+  // Retrieves a Service Account
+  rpc GetServiceAccount(GetServiceAccountRequest) returns (ServiceAccount);
+
+  // Lists Service Accounts
+  rpc ListServiceAccounts(ListServiceAccountsRequest) returns (ListServiceAccountsResponse);
+
+  // Deletes a Service Account
+  rpc DeleteServiceAccount(DeleteServiceAccountRequest) returns (google.protobuf.Empty);
+}
+
+// A Service Account used to access APIs from some backend service.
+message ServiceAccount {
+  // A set of Credentials used to authenticate
+  // This object is intended to be JSON-encoded.
+  message Credentials {
+    // Type of credentials
+    string type = 5 [
+      json_name = "type"
+    ];
+
+    // OAuth Client ID for the Credentials
+    string client_id = 1 [
+      json_name = "client_id"
+    ];
+
+    // The secret used to authenticate the Client
+    // This value should be kept secret.
+    string client_secret = 2 [
+      json_name = "client_secret"
+    ];
+
+    // The audience for the Credentials
+    string audience = 3 [
+      json_name = "audience"
+    ];
+
+    // The URI used to obtain an access token
+    string token_uri = 4 [
+      json_name = "token_uri"
+    ];
+  }
+
+  // Server-generated identifier of the Service Account
+  string client_id = 1;
+
+  // The email address of the Service Account
+  string client_email = 2;
+
+  // A display name for the Service Account
+  string display_name = 3;
+
+  // A description of the Service Account
+  string description = 4;
+
+  // JSON-encoded string containing credentials
+  // This will only be populated when the Service Account is created
+  // See `Credentials` for the structure of this object
+  // When received via HTTP, this field will be base64-encoded.
+  bytes credentials = 5;
+}
+
+// Request for the `CreateServiceAccount` method
+message CreateServiceAccountRequest {
+  // REQUIRED. A display name for the Service Account
+  string display_name = 1 [
+    (buf.validate.field).cel = {
+      id: "not_blank",
+      message: "cannot be blank",
+      expression: "this.trim() != ''"
+    }
+  ];
+
+  // OPTIONAL. A description of the Service Account
+  string description = 2;
+}
+
+// Request for the `GetServiceAccount` method
+message GetServiceAccountRequest {
+  // REQUIRED. Unique identifier of the Service Account to retrieve
+  string client_id = 1 [
+    (buf.validate.field).cel = {
+      id: "not_blank",
+      message: "cannot be blank",
+      expression: "this.trim() != ''"
+    }
+  ];
+}
+
+// Request for the `ListServiceAccounts` method
+message ListServiceAccountsRequest {
+  // The maximum number of Service Accounts to return
+  // If not specified, the default is 50. Values greater than 200 will be coerced to 200
+  int32 page_size = 1;
+
+  // A page token, received from a previous `ListServiceAccounts` call
+  // providing more Service Accounts to retrieve
+  string page_token = 2;
+}
+
+// Response for the `ListServiceAccounts` method
+message ListServiceAccountsResponse {
+  // The list of Service Accounts
+  repeated ServiceAccount service_accounts = 1;
+
+  // A token to retrieve the next page of results
+  string next_page_token = 2;
+}
+
+// Request for the `DeleteServiceAccount` method
+message DeleteServiceAccountRequest {
+  // REQUIRED. Unique identifier of the Service Account to delete
+  string client_id = 1 [
+    (buf.validate.field).cel = {
+      id: "not_blank",
+      message: "cannot be blank",
+      expression: "this.trim() != ''"
+    }
+  ];
+}

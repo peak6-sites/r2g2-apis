@@ -1,0 +1,9 @@
+version: v1
+name: buf.build/peak6labs/r2g2-apis
+build:
+  excludes:
+    - third_party/
+deps:
+  - buf.build/bufbuild/protovalidate
+lint:
+  allow_comment_ignores: true

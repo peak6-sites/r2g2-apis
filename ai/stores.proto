@@ -1,0 +1,512 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai;
+
+import "ai/type/list.proto";
+import "buf/validate/validate.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/struct.proto";
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai";
+
+// Stores is a service for managing file stores
+// buf:lint:ignore SERVICE_SUFFIX
+// buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
+// buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
+service Stores {
+  // Creates a new store for users to upload files to
+  rpc CreateStore(CreateStoreRequest) returns (Store) {};
+
+  // Gets the current state of a store
+  rpc GetStore(GetStoreRequest) returns (Store) {};
+
+  // Lists the available stores
+  rpc ListStores(ListStoresRequest) returns (ListStoresResponse) {};
+
+  // Updates the state of a store
+  rpc UpdateStore(UpdateStoreRequest) returns (Store) {};
+
+  // Deletes a store and all of its files
+  rpc DeleteStore(DeleteStoreRequest) returns (google.protobuf.Empty) {};
+
+  // Gets the configuration of a store
+  rpc GetStoreConfig(GetStoreConfigRequest) returns (StoreConfig) {}
+
+  // Initiates the process of uploading a file to a store
+  // The server will respond with an event indicating where the file should be uploaded
+  rpc UploadFile(UploadFileRequest) returns (stream UploadFileEvent) {};
+
+  // Initiates the process of uploading a file to a store
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  rpc UploadFileUnary(UploadFileRequest) returns (UploadFileUnaryResponse) {};
+
+  // Gets the current state of a file in a store
+  rpc GetFile(GetFileRequest) returns (File) {};
+
+  // Lists the files in a store
+  rpc ListFiles(ListFilesRequest) returns (ListFilesResponse) {}
+
+  // Deletes a file from a store
+  rpc DeleteFile(DeleteFileRequest) returns (google.protobuf.Empty) {}
+
+  // Returns permissions that a call has on the specified Store.
+  // If the resource does not exist, the response will return an empty set of
+  // permissions, not a `NOT_FOUND` error.
+  rpc TestStorePermissions(TestStorePermissionsRequest) returns (TestStorePermissionsResponse) {}
+}
+
+// A store where files can be uploaded for indexing
+message Store {
+  // id of the store
+  string id = 1;
+
+  // display name of the store
+  string display_name = 2;
+
+  // Indicates the entity that manages the contents of the store.
+  string managed_by = 8;
+
+  // Legacy owner field.
+  // This will contain the first element of the `owners` field.
+  // Deprecated: See `owners` field.
+  string owner = 3 [
+    deprecated = true
+  ];
+
+  // Users that own the store.
+  // Values must be in the form `user:username@example.com`
+  repeated string owners = 6;
+
+  // Users that can upload files to the store.
+  // Values will be either:
+  // - `domain:example.com` to allow all users in the domain to upload files
+  // - `user:username@example.com` to allow a specific user to upload files
+  repeated string uploaders = 7;
+
+  // Users who can view the store
+  // Values will be either:
+  // - `domain:example.com` to allow all users in the domain to view the store
+  // - `user:user@example.com` to allow a specific user to view the store
+  repeated string viewers = 5;
+
+  // Timestamp when the store was created
+  google.protobuf.Timestamp create_time = 4;
+}
+
+// Configuration for embedding documents in a store
+message EmbeddingConfig {
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum Model {
+    MODEL_UNSPECIFIED = 0;
+    OPENAI_TEXT_EMBEDDING_ADA_002 = 1;
+    OPENAI_TEXT_EMBEDDING_3_SMALL = 2;
+    OPENAI_TEXT_EMBEDDING_3_LARGE = 3;
+  }
+
+  // The model used to generate embeddings for documents in the store.
+  Model model = 1;
+
+  // The number of dimensions in the embedding space.
+  // The constraints of this value are determined by the model.
+  // For example, the OpenAI Text Embedding Ada 002 model is always 1536 dimensions.
+  uint32 dimensions = 2;
+}
+
+// Configuration for chunking documents
+message ChunkingConfig {
+  // The maximum size of a chunk in tokens.
+  uint32 chunk_size = 1;
+
+  // The number of tokens to overlap between chunks.
+  uint32 chunk_overlap = 2;
+}
+
+// A piece of store configuration.
+message StoreConfig {
+  // Name of the configuration.  Will be empty for top-level configuration.
+  string name = 1;
+
+  // Config value
+  google.protobuf.Struct config = 2;
+}
+
+// Request for the `GetStoreConfig` method.
+message GetStoreConfigRequest {
+  // REQUIRED. ID of the store to retrieve the configuration for.
+  string store_id = 1;
+
+  // OPTIONAL. The configuration to retrieve.
+  // Leave blank to retrieve the top-level store configuration.
+  string name = 2;
+}
+
+// A request to create a new store
+message CreateStoreRequest {
+  // user-specified id of the store
+  // If blank, a id will be generated
+  string id = 1;
+
+  // user-specified display name of the store
+  string display_name = 2;
+
+  // Chunking configuration
+  // If not specified, a default configuration will be used.
+  ChunkingConfig chunking_config = 4;
+
+  // Configuration for generation of vector embeddings. If not specified, a default configuration will be used.
+  // Embedding configuration cannot be changed once a store is created.
+  EmbeddingConfig embedding_config = 5;
+
+  // Users that own the store.
+  // When no owners are specified, the user making the request will be the owner.
+  // Values must be in the form `user:user@example.com`
+  repeated string owners = 6;
+
+  // Users that are allowed to upload files to the store.
+  // Values must be either:
+  // - `domain:example.com` to allow all users in the domain to upload to the store
+  // - `user:user@example.com` to allow a specific user to upload to the store
+  repeated string uploaders = 7;
+
+  // Users who can view the store
+  // Values must be either:
+  // - `domain:example.com` to allow all users in the domain to view the store
+  // - `user:user@example.com` to allow a specific user to view the store
+  repeated string viewers = 3;
+}
+
+message GetStoreRequest {
+  // id of the store to retrieve
+  string id = 1;
+}
+
+// A request to list available stores
+message ListStoresRequest {
+  // TODO: pagination
+}
+
+// A response containing a list of available stores
+message ListStoresResponse {
+  // list of stores
+  repeated Store stores = 1;
+
+  // TODO: pagination
+}
+
+// A request to update the state of a store
+message UpdateStoreRequest {
+  // A list of viewers. This is in a wrapper type so that we can allow for partial updates of a store
+  // Values must be either:
+  // - `domain:example.com` to allow all users in the domain to view the store
+  // - `user:user@example.com` to allow a specific user to view the store
+  message ViewersList {
+    // List of viewers
+    repeated string values = 1;
+  }
+
+  // Id of the store to update
+  string id = 1;
+
+  // The display name of the store
+  string display_name = 2;
+
+  // A list of owners.
+  // Values must be in the form `user:username@exmaple.com`
+  ai.type.StringList owners = 4;
+
+  // A list of uploaders.
+  // Values must be either:
+  // - `domain:example.com` to allow all users in the domain to upload to the store
+  // - `user:username@example.com` to allow a specific user to upload to the store
+  ai.type.StringList uploaders = 5;
+
+  // Users who can view the store
+  // Values must be either:
+  // - `domain:example.com` to allow all users in the domain to view the store
+  // - `user:user@example.com` to allow a specific user to view the store
+  ViewersList viewers = 3;
+}
+
+// A request to delete a store
+message DeleteStoreRequest {
+  // id of the store to delete
+  string id = 1;
+}
+
+// An indexed file within a store.
+message File {
+  // State of the file
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum State {
+    STATE_UNSPECIFIED = 0;
+
+    // The file is currently being indexing
+    INDEXING = 1;
+
+    // The file is currently being deleted
+    DELETING = 4;
+
+    // The file has been successfully indexed
+    INDEXED = 2;
+
+    // The file has failed to index
+    // Reference the state_reason field for more information
+    FAILED = 3;
+  }
+
+  // id of the store containing the file
+  string store_id = 1;
+
+  // name of the fil3
+  string filename = 2;
+
+  // size of the file in bytes
+  int64 size = 3;
+
+  // timestamp when the file was uploaded
+  google.protobuf.Timestamp upload_time = 4;
+
+  // GCS signed link where file can be downloaded
+  string url = 5;
+
+  // The current state of the file
+  State state = 6;
+
+  // A message describing the current state of the file
+  string state_reason = 7;
+}
+
+// A request to upload and index a file in a store.
+message UploadFileRequest {
+  // id of the store
+  string store_id = 1;
+
+  // name of the file
+  string filename = 2;
+
+  // User-specified content type of the file.
+  // If no value is provided, the server will attempt to guess the content type using the extension of the file. Unknown
+  // extensions will default to application/octet-stream.
+  string content_type = 3;
+
+  // Source URL of the file. This is the URL that will be provided when citing this file as a source.
+  // If no value is provided, an ephemeral Google Cloud Storage URL will be generated.
+  string source_url = 4;
+}
+
+// Response to a unary upload file request
+message UploadFileUnaryResponse {
+  // id of the store
+  string store_id = 1;
+
+  // name of the file
+  string filename = 2;
+
+  // GCS signed link where file can be uploaded
+  // Client should call this URL with an HTTP PUT and include the contents of the file as the body of the request.
+  string url = 3;
+
+  // The set of headers that MUST be included with the HTTP request to the upload url
+  map<string, string> headers = 4;
+}
+
+// An event in the file upload process.
+message UploadFileEvent {
+  // An event payload indicating that storage for a file has been allocated.
+  // Clients should use the provided URL to upload the file.
+  message Allocated {
+    // GCS signed link where file can be uploaded
+    string url = 1;
+
+    // The set of headers that MUST be included with the HTTP request to the upload url
+    map<string, string> headers = 2;
+  }
+
+  // id of the store
+  string store_id = 1;
+
+  // name of the file
+  string filename = 2;
+
+  // Payload of the event
+  oneof event {
+    Allocated allocated = 3;
+  }
+}
+
+// A request to get the current state of a file in a store
+message GetFileRequest {
+  // id of the store
+  string store_id = 1;
+
+  // name of the file
+  string filename = 2;
+}
+
+// A request to list the files in a store
+message ListFilesRequest {
+  // id of the store
+  string store_id = 1;
+}
+
+// A response containing a list of files in a store
+message ListFilesResponse {
+  // list of files in the store
+  repeated File files = 1;
+
+  // TODO: Pagination
+}
+
+// A request to delete a file from a store
+message DeleteFileRequest {
+  // id of the store
+  string store_id = 1;
+
+  // name of the file
+  string filename = 2;
+}
+
+// Request message for `TestStorePermissions` method.
+message TestStorePermissionsRequest {
+  // REQUIRED: THe ID of the Store to test permissions for.
+  string id = 1 [
+    (buf.validate.field).cel = {
+      id: "non-empty",
+      message: "must be non-empty",
+      expression: "this != \"\""
+    }
+  ];
+
+  // REQUIRED: The set of permissions to test.
+  // Currently supported permissions are:
+  // - `files.get`
+  // - `files.list`
+  // - `files.upload`
+  // - `files.delete`
+  // - `stores.get`
+  // - `stores.update`
+  // - `stores.delete`
+  repeated string permissions = 2 [
+    (buf.validate.field).repeated.min_items = 1
+  ];
+}
+
+// Response message for `TestStorePermissions` method.
+message TestStorePermissionsResponse {
+  // The set of permission the user has on the Store.
+  repeated string permissions = 1;
+}
+
+// FileIndexEvent is an event indicating that a file has been indexed or deleted
+message FileIndexEvent {
+  // Type of the event
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum EventType {
+    EVENT_TYPE_UNSPECIFIED = 0;
+    INDEXING_STARTED = 3;
+    INDEXED = 1;
+    DELETED = 2;
+    FAILED = 4;
+  }
+
+  message EventData {
+    // id of the store
+    string store_id = 1;
+
+    // name of the file
+    string filename = 2;
+
+    // size of the file in bytes
+    uint64 size = 3;
+
+    // md5 hash of the file
+    string md5 = 4;
+
+    // timestamp when the file was created in GCS
+    google.protobuf.Timestamp create_time = 5;
+
+    // reason for the event
+    string reason = 6;
+  }
+
+  // id of the event
+  string event_id = 1;
+
+  // type of the event
+  EventType event_type = 2;
+
+  // timestamp of the event
+  google.protobuf.Timestamp event_time = 3;
+
+  // data of the event
+  EventData data = 4;
+}
+
+message IndexJobEvent {
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum JobAction {
+    JOB_ACTION_UNSPECIFIED = 0;
+    INSERT = 1;
+    DELETE = 2;
+  }
+
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum JobState {
+    JOB_STATE_UNSPECIFIED = 0;
+    PENDING = 1;
+    RUNNING = 2;
+    COMPLETED = 3;
+  }
+
+  message File {
+    string name = 1;
+    string md5 = 2;
+    google.protobuf.Timestamp create_time = 3;
+  }
+
+  message Job {
+    string name = 1;
+    string batch_id = 2;
+    JobAction action = 3;
+    string exec_name = 4;
+  }
+
+  message JobRequested {
+    string store_id = 1;
+    File file = 2;
+    Job job = 3;
+  }
+
+  message JobStarted {
+    string store_id = 1;
+    File file = 2;
+    Job job = 3;
+  }
+
+  message JobSucceeded {
+    string store_id = 1;
+    File file = 2;
+    Job job = 3;
+    uint32 n_inserted = 4;
+    uint32 n_deleted = 5;
+  }
+
+  message JobFailed {
+    string store_id = 1;
+    File file = 2;
+    Job job = 3;
+    string failure_reason = 4;
+  }
+
+  string event_id = 1;
+  google.protobuf.Timestamp event_time = 3;
+
+  oneof data {
+    JobRequested job_requested = 6;
+    JobStarted job_started = 7;
+    JobSucceeded job_succeeded = 8;
+    JobFailed job_failed = 9;
+  }
+}

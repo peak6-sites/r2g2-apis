@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+// buf:lint:ignore PACKAGE_VERSION_SUFFIX
+package ai;
+
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai";
+
+// A model available to the chat engine.
+message Model {
+  // Launch stage of the model
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  // buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
+  enum LaunchStage {
+    GA = 0;
+    BETA = 1;
+    DEPRECATED = 2;
+  }
+
+  // Input formats supported by the model
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum InputFormats {
+    INPUT_FORMAT_UNSPECIFIED = 0;
+
+    // The model accepts text input
+    TEXT = 1;
+
+    // The model accepts image input
+    IMAGE = 2;
+  }
+
+  // Tags that indicate features or attributes of a model
+  // buf:lint:ignore ENUM_VALUE_PREFIX
+  enum Tag {
+    TAG_UNSPECIFIED = 0;
+    CREATIVE_WRITING = 1;
+    CODING = 2;
+    FAST = 3;
+    ONLINE_ACCESS = 4;
+  }
+
+  enum Feature {
+    FEATURE_UNSPECIFIED = 0;
+    TOOL_CALL = 1;
+    JSON_SCHEMA = 2;
+  }
+
+  // A parameter that the model accepts.
+  message Parameter {
+    message Value {
+      oneof value {
+        string string_value = 1;
+        int32 int_value = 2;
+        double double_value = 3;
+        bool bool_value = 4;
+      }
+    }
+
+    // The name of the parameter
+    string name = 1;
+
+    // The default value of the parameter
+    Value default_value = 2;
+
+    // The minimum value of the parameter
+    Value min_value = 3;
+
+    // The maximum value of the parameter
+    Value max_value = 4;
+  }
+
+  // The machine readable name of the model
+  string name = 1;
+
+  // The human readable name of the model
+  string display_name = 4;
+
+  // Description of the model
+  string description = 5;
+
+  // The underlying model this model is an alias for
+  // This will only be set for models that are aliases for other models.
+  string alias_for = 6;
+
+  // The parameters accepted by the model
+  map<string, Parameter> parameters = 2;
+
+  // Whether the models supports accepting images as input
+  // Deprecated: Use `supported_input_formats` instead.
+  bool supports_image_input = 3 [
+    deprecated = true
+  ];
+
+  // The set of input formats supported by the model
+  repeated InputFormats supported_input_formats = 7;
+
+  // Tags that indicate features or attributes of a model
+  repeated Tag tags = 8;
+
+  // Indicates that the model is recommended for use by the Applied AI team.
+  bool recommended = 9;
+
+  // Indicates that the model is deprecated and should not be used.
+  LaunchStage launch_stage = 10;
+
+  // The suggested replacement model to use if this model's launch stage is `DEPRECATED`.
+  string replacement = 11;
+
+  // Indicates that the model supports tool calling
+  repeated Feature features = 12;
+
+  // Indicates that the model is hidden and does not appear in the list of available models.
+  bool hidden = 13;
+
+  // Indicates that the model is disabled and should not be used.
+  bool disabled = 14;
+}
