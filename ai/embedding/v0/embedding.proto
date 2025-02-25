@@ -5,7 +5,7 @@ package ai.embedding.v0;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/embedding/v0;embeddingpb";
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/embedding/v0;embeddingpb";
 
 // Embedding service provides methods for generating text embeddings,
 // calculating similarity between texts, and listing available models.

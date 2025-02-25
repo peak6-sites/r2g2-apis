@@ -1,0 +1,19 @@
+version: v1
+plugins:
+  # go
+  - plugin: buf.build/protocolbuffers/go:v1.33.0
+    out: gen/go
+    opt: paths=source_relative
+  - plugin: buf.build/grpc/go:v1.3.0
+    out: gen/go
+    opt: paths=source_relative
+  - plugin: buf.build/connectrpc/go:v1.15.0
+    out: gen/go
+    opt: paths=source_relative
+  # python
+  - plugin: buf.build/protocolbuffers/pyi:v25.3
+    out: gen/python
+  - plugin: buf.build/protocolbuffers/python:v25.3
+    out: gen/python
+  - plugin: buf.build/grpc/python:v1.62.0
+    out: gen/python

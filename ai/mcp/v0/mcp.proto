@@ -5,7 +5,7 @@ package mcp;
 
 import "google/protobuf/struct.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/mcp/v0;mcppb";
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/mcp/v0;mcppb";
 
 service MCP{
   rpc Server(stream Message) returns (stream Message) {};

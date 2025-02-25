@@ -5,7 +5,7 @@ package ai.audio.v0;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai/audio/v0;audiopb";
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/audio/v0;audiopb";
 
 // Service for transcribing audio to text.
 // buf:lint:ignore SERVICE_SUFFIX

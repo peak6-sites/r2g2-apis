@@ -9,7 +9,7 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/struct.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/ai";
+option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai";
 
 // Stores is a service for managing file stores
 // buf:lint:ignore SERVICE_SUFFIX
