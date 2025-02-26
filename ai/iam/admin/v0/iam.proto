@@ -6,7 +6,7 @@ package ai.iam.admin.v0;
 import "buf/validate/validate.proto";
 import "google/protobuf/empty.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/iam/admin/v0;adminpb";
+option go_package = "githhub.com/peak6-sites/r2g2-apis/gen/go/ai/iam/admin/v0;adminpb";
 
 // Creates and manages IAM resources, such as Service Accounts
 // buf:lint:ignore SERVICE_SUFFIX

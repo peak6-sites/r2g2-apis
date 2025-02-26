@@ -3,7 +3,7 @@ syntax = "proto3";
 // buf:lint:ignore PACKAGE_VERSION_SUFFIX
 package ai;
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai";
+option go_package = "githhub.com/peak6-sites/r2g2-apis/gen/go/ai";
 
 // A model available to the chat engine.
 message Model {

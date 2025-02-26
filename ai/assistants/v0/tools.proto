@@ -4,7 +4,7 @@ package ai.assistants.v0;
 
 import "buf/validate/validate.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/assistants/v0;assistantspb";
+option go_package = "githhub.com/peak6-sites/r2g2-apis/gen/go/ai/assistants/v0;assistantspb";
 
 // A tool/function definition for a model to use.
 message Tool {

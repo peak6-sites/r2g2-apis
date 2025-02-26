@@ -5,7 +5,7 @@ package ai.rag.v0;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/rag/v0;ragpb";
+option go_package = "githhub.com/peak6-sites/r2g2-apis/gen/go/ai/rag/v0;ragpb";
 
 // Stores is a service for managing index stores and files within those stores.
 // buf:lint:ignore SERVICE_SUFFIX

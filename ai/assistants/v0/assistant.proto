@@ -10,7 +10,7 @@ import "ai/assistants/v0/tools.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-option go_package = "github.com/peak6-sites/r2g2-apis/gen/go/ai/assistants/v0;assistantspb";
+option go_package = "githhub.com/peak6-sites/r2g2-apis/gen/go/ai/assistants/v0;assistantspb";
 
 // buf:lint:ignore SERVICE_SUFFIX
 // buf:lint:ignore RPC_REQUEST_RESPONSE_UNIQUE
