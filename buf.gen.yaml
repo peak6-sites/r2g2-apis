@@ -17,3 +17,8 @@ plugins:
     out: gen/python
   - plugin: buf.build/grpc/python:v1.62.0
     out: gen/python
+  # javascript
+  - plugin: buf.build/bufbuild/es:v2.2.5
+    out: gen/es
+    opt:
+      - target=js
